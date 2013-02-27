@@ -1,0 +1,4 @@
+Version 58: Implementation of stage 1
+Version 59: Implementation of stage 2. Rate limiting at default of 50kB/s
+Version 60: Implementation of stage 3. Rate limiting turned on and read from config file.
+Version 61: Full implementation using -rl flag.  See README for details on use

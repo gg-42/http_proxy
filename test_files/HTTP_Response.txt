@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Date: Thu, 17 May 2012 00:53:42 GMT
+Pragma: no-cache
+Expires: Fri, 01 Jan 1990 00:00:00 GMT
+Cache-Control: no-cache, must-revalidate
+X-Frame-Options: ALLOWALL
+Content-Type: text/html; charset=UTF-8
+Content-Encoding: gzip
+Server: gws
+Content-Length: 282
+X-XSS-Protection: 1; mode=block
+
+<script>window.googleJavaScriptRedirect=1</script><script>var f={};f.navigateTo=function(b,a,g){if(b!=a&&b.google){if(b.google.r){b.google.r=0;b.location.href=g;a.location.replace("about:blank");}}else{a.location.replace(g);}};f.navigateTo(window.parent,window,"http://en.wikipedia.org/wiki/Internet_Group_Management_Protocol");
+</script><noscript><META http-equiv="refresh" content="0;URL='http://en.wikipedia.org/wiki/Internet_Group_Management_Protocol'"></noscript>

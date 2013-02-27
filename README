@@ -1,0 +1,130 @@
+===============
+=== DETAILS ===
+===============
+Program Name: WEBPROXY
+Version: 1.0
+Date: 25 May 2012
+Runs on: Ubuntu 10.04.4
+
+===============
+=== AUTHORS ===
+===============
+Sebastian Carroll : U4395897
+Geoffrey Goldstraw : u4528129
+
+===================
+== Installation ===
+===================
+The usual way in which webproxy is installed is to navigate to the folder which contains
+the Makefile and webproxy.c and simply type;
+> make
+The executable webproxy will be created in the same directory and can be run by typing;
+> ./webproxy [options]
+
+Installation requires make and gcc and has been tested on;
+    - Ubuntu 10.04.4 using kernel version 2.6.32
+    - GNU Make 3.81
+    - gcc 4.4.3
+
+==================
+== Description ===
+==================
+The webproxy program is a simple proxy for web based requests.  In its basic form it does
+nothing more than forward requests onto the appropriate server and pass the servers reply
+back to the client.  Its main functionality is to limit the rate at which the servers
+reply is passed back to the client as a way of mitigating against bufferbloat. Through
+the use of a configuration file webproxy can limit different domains to different rates
+and also change the port which webproxy will listen on to find incoming connections. The
+usage of webproxy is as follows:
+
+webproxy [switches]
+
+A description of the use and effect of switches is as follows:
+
+    -rl  : Without this switch no rate limiting will be implemented
+    
+    -f [configuration file] : If included webproxy will use to specified file to find
+            rate limiting values for domains and also the value of the listening port. The
+            configuration file must come directly after the -f switch. 
+
+======= Configuration File =======
+The format of the configuration file is as follows:
+1) anything following a hash on a line is a comment.
+2) blank lines are ignored.
+3) Anything below the tag [section] will fall under that section
+4) rate limiting information must fall under [rates] and the proxy port information
+    must fall under no section tag at the top of the configuration file.
+5) Rate limiting entries are matched from the top of the list, down, so placing more
+    generic entries first means later entries might never be reached.
+    
+Example of a config file:
+
+proxy_port = 8080   # the TCP port to listen to for HTTP requests (default is 8080)
+
+[rates] # the start of rates section
+www.google.com  10  # limit google to 10kbytes/sec
+com.au      25  # limit all .com.au domains to 25kbytes/sec
+edu.au      5   # limit all other .edu.au domains to 5kbytes/sec
+
+================ Default parameters defaults.c =========================
+The default parameters can be seen in defaults.h. This set the maium header size, 
+sizes, timeouts on read operations, default ports etc.
+
+======= Rate Limiting Info rate_lib.c=======
+The algorithm used for rate limiting simply sends out a buffer of size s every unit of
+time t.  For simplicity, t is set to 1 second.  There are then two cases to deal with
+here:
+    1) The buffer fills before the time reached to send the contents; then the thread suspends
+     till the time is reached and sends out the full buffer. 
+    2) The time is reached before the buffer fills; then the program simply sends the
+      contents of the buffer. 
+This method was used as it avoided situations in where the the link is not 
+used for a long period of time and then a large amount of data could be sent over
+the link. On average this will be below the limit but this defeats the purpose 
+of rate limiting in the first place.
+
+When relaying data as well as rate limited the rate in which data is read in is 
+s amount. If no rate limiting is applied then the amount is determined by RELAY_BUF_SIZE.
+If RELAY_BUF_SIZE is too big it could introduce latency into the network
+(Bufferbloat).
+
+
+======== relay_comms =============
+This will read the client connection, determine the host address from the header
+and send the header (and body if included) to the server. NO rate limiting should
+be applied to this link. If the header is not read in all at once it will keep 
+reading until it has either received the max header size or the read operation has timed out.
+Each read will try to parse the header to determine if a valid header has been received.
+
+Once the proxy receives data from the server it will relay it back to the client.
+
+Any subsequent requests by the client, the header will be inspected each time to ensure it 
+is the same server. If a different server is requested then the connection will
+be closed. 
+
+The http header information and data from the client is stored in header_data. 
+This struct contains all the pointers to each field in the header as well as the 
+actual size of the header.
+
+For future extension if the proxy needs to keep track of server responses, the 
+procedures have already been implemented and can keep track of messages with a 
+body if a valid content-length field is given.
+
+
+
+============ header_parser ================
+Header parser is given a message and determines if the header is valid then 
+the determines location of all the fields. 
+The header must be read in using parse_header(), then get_host, and get_content_length()
+can be used. All fields of the header can be accessed if needed using get_field()
+
+The implementation does not change anything read in but uses pointers to point to
+each of the fields. This was done to optimise the code.
+
+======================Problems ========================
+- Can not deal with the CONNECT method in the http header correctly
+- Not really compliant with HTTP 1.0
+
+
+      
+

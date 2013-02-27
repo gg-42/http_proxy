@@ -1,0 +1,25 @@
+********************************************************
+List of the things to do. If working on an item put an S. 
+If finish - delete the item. 
+*********************************************************
+- fix the debug mode
+- check it works with ipv6
+- clean up code
+- test
+- Further testing of rate limiting
+- comment
+- remove this file
+
+
+
+DONE
+S - Fix rate limiting problems
+- timeout on select
+S - implement which port to listen on from config file
+S - fix config problems and loading
+- remove unessary files
+- add comment headers
+- Fix all the TODO
+S - add defaults with config file
+S - write up readme file
+
